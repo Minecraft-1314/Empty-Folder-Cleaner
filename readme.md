@@ -74,9 +74,8 @@ A cross-platform desktop tool to find and clean up empty folders on your compute
 | 贡献者 (Contributor) | 贡献内容 (Contribution) |
 |----------------------|--------------------------|
 | 用户 (User)          | 完整开发 (Complete development) |
-| Minecraft-1314 | 插件完整开发 (Complete plugin development)
-*(欢迎提交 PR 加入贡献者列表)*  
-*(Welcome to submit PR to join the contributor list)*
+| Minecraft-1314 | 插件完整开发 (Complete plugin development) |
+| *(欢迎提交 PR 加入贡献者列表)* | *(Welcome to submit PR to join the contributor list)* |
 
 ---
 
