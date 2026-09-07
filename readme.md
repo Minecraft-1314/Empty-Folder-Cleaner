@@ -8,17 +8,17 @@ A cross-platform desktop tool to find and clean up empty folders on your compute
 
 ## 核心特性 | Core Features
 
-- **递归扫描**：深度遍历所选目录，精准定位所有空文件夹  
-  **Recursive Scan**: Deeply traverses the selected directory to precisely locate all empty folders
+- **并行扫描**：按扫描目录下的顶层目录并行遍历，快速定位所有空文件夹<br>
+  **Parallel Scan**: Traverses top-level directories under the selected path in parallel to locate empty folders faster
+
+- **级联清理**：删除子目录后，新变空的父目录会自动继续清理<br>
+  **Cascade Cleanup**: Parent folders that become empty after child deletion are automatically cleaned up
 
 - **安全删除**：支持永久删除或移动至回收站（需安装 `send2trash`），删除前二次确认  
   **Safe Deletion**: Supports permanent deletion or moving to trash (requires `send2trash`), with a confirmation dialog before deletion
 
 - **智能忽略**：自动记住删除失败（权限不足）的文件夹，下次扫描不再显示；支持通配符规则忽略特定文件夹  
   **Smart Ignore**: Automatically remembers folders that failed to delete (e.g., permission denied) and hides them in future scans; supports wildcard ignore rules
-
-- **现代化 GUI**：基于 PyQt6 的精美界面，支持暗色/明亮/跟随系统主题，界面简洁直观  
-  **Modern GUI**: Beautiful PyQt6-based interface with dark / light / system theme switching, clean and intuitive
 
 - **多语言支持**：内置中文和英文，可根据系统语言自动切换  
   **Multi‑language Support**: Built‑in Chinese and English, with automatic switching based on system language
@@ -32,9 +32,6 @@ A cross-platform desktop tool to find and clean up empty folders on your compute
 - **历史目录**：自动记录最近扫描的目录，便于快速切换  
   **History Directories**: Automatically records recently scanned directories for quick switching
 
-- **键盘快捷键**：`Ctrl+A` 全选，`F5` 刷新扫描，`Esc` 停止当前操作  
-  **Keyboard Shortcuts**: `Ctrl+A` select all, `F5` refresh scan, `Esc` stop current operation
-
 - **空间估算**：实时估算选中文件夹删除后可能释放的磁盘空间  
   **Space Estimation**: Real‑time estimation of disk space that could be freed after deleting selected folders
 
@@ -42,8 +39,8 @@ A cross-platform desktop tool to find and clean up empty folders on your compute
 
 ## 使用说明 | Usage Guide
 
-1. 下载并运行本程序（Windows 用户可直接运行 `.exe`，macOS / Linux 需安装 Python 依赖）  
-   Download and run the program (Windows users can directly run the `.exe`; macOS / Linux requires Python dependencies)
+1. 从源码运行程序：在项目目录执行 `python empty_folder_cleaner.py`<br>
+   Run the program from source with `python empty_folder_cleaner.py`
 
 2. 选择要扫描的目录（默认用户主目录），或从历史目录下拉框中快速选择  
    Select the directory to scan (default is your home directory), or quickly pick one from the recent directories dropdown
@@ -64,10 +61,21 @@ A cross-platform desktop tool to find and clean up empty folders on your compute
 
 ## 安装依赖 | Dependencies
 
-- Python 3.8+
+- Python 3.10+
 - PyQt6
 - darkdetect（可选，用于跟随系统主题）
 - send2trash（可选，用于安全删除至回收站）
+- 当前仓库未附带预编译 `.exe`，请从源码运行或自行打包<br>
+  This repository does not bundle a prebuilt `.exe`; run from source or build your own package
+
+## 项目结构 | Project Structure
+
+```text
+empty_folder_cleaner.py    # 启动入口 | Launcher
+empty_folder_cleaner/
+|-- core/                  # 配置、文案、文件系统与扫描引擎 | Core logic
+|-- ui/                    # 主窗口、主题、对话框与控件构造 | UI layer
+```
 
 ## 项目贡献者 | Contributors
 
