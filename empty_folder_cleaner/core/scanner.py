@@ -20,6 +20,10 @@ except ImportError:
     _SEND2TRASH_AVAILABLE = False
 
 
+def is_trash_available():
+    return _SEND2TRASH_AVAILABLE
+
+
 class EmptyFolderEngine:
     def __init__(self, scan_dir, lang="en"):
         self.scan_dir = scan_dir
@@ -62,7 +66,9 @@ class EmptyFolderEngine:
                         return
                     try:
                         if entry.is_dir(follow_symlinks=False):
-                            yield entry.path
+                            norm = os.path.normpath(entry.path)
+                            if not self._is_ignored(norm):
+                                yield norm
                     except OSError:
                         continue
         except OSError:
@@ -73,15 +79,18 @@ class EmptyFolderEngine:
         empty = 0
         try:
             for root, dirs, files in os.walk(
-                sub_root, topdown=False, onerror=lambda error: None
+                sub_root, topdown=True, onerror=lambda error: None
             ):
                 if self.stop_event.is_set():
                     break
                 norm_root = os.path.normpath(root)
+                original_dirs = list(dirs)
+                dirs[:] = [
+                    d for d in dirs
+                    if not self._is_ignored(os.path.normpath(os.path.join(root, d)))
+                ]
                 total += 1
-                if self._is_ignored(norm_root):
-                    continue
-                if not dirs and not files:
+                if not original_dirs and not files:
                     empty += 1
                     found_queue.put(norm_root)
         except OSError:
@@ -93,7 +102,9 @@ class EmptyFolderEngine:
 
     def scan_empty_folders_generator(self, stats_callback=None):
         if not os.path.isdir(self.scan_dir):
-            raise Exception(self._t("error_scan", error="Directory does not exist"))
+            raise FileNotFoundError(
+                self._t("error_scan", error=self._t("dir_not_found"))
+            )
 
         self._scan_total = 0
         self._scan_empty = 0
@@ -149,21 +160,21 @@ class EmptyFolderEngine:
 
     def _queue_emptied_ancestors(self, deleted_path, pending, scheduled, log_signal):
         parent = os.path.dirname(deleted_path)
-        while parent and self._is_within_scan_root(parent):
-            norm_parent = os.path.normpath(parent)
-            if norm_parent == os.path.normpath(self.scan_dir):
-                break
-            if norm_parent in scheduled or self._is_ignored(norm_parent):
-                break
-            try:
-                if not os.path.isdir(parent) or os.listdir(parent):
-                    break
-            except OSError:
-                break
-            scheduled.add(norm_parent)
-            log_signal.emit(self._t("chain_empty", path=parent), False)
-            pending.append(parent)
-            break
+        if not parent or not self._is_within_scan_root(parent):
+            return
+        norm_parent = os.path.normpath(parent)
+        if norm_parent == os.path.normpath(self.scan_dir):
+            return
+        if norm_parent in scheduled or self._is_ignored(norm_parent):
+            return
+        try:
+            if not os.path.isdir(parent) or os.listdir(parent):
+                return
+        except OSError:
+            return
+        scheduled.add(norm_parent)
+        log_signal.emit(self._t("chain_empty", path=parent), False)
+        pending.append(norm_parent)
 
     def delete_folders(self, folder_paths, log_signal, progress_signal, use_trash=False):
         failed = []
@@ -179,11 +190,12 @@ class EmptyFolderEngine:
 
         ordered = sorted(
             pending,
-            key=lambda p: (self._directory_depth(p), os.path.basename(p)),
+            key=lambda p: (self._directory_depth(p), p.lower()),
             reverse=True,
         )
         pending = deque(ordered)
         completed = 0
+        total = len(pending)
 
         while pending:
             if self.stop_event.is_set():
@@ -215,11 +227,11 @@ class EmptyFolderEngine:
                 log_signal.emit(self._t("delete_error", path=path, error=str(e)), True)
 
             completed += 1
-            progress_signal.emit(completed, completed + len(pending))
+            progress_signal.emit(min(completed, total), total)
 
-        if not remaining:
+        if not remaining and not failed:
             log_signal.emit(self._t("all_done"), False)
-        progress_signal.emit(0, 0)
+        progress_signal.emit(min(completed, total), total)
         return failed, remaining, deleted_paths
 
     def stop(self):

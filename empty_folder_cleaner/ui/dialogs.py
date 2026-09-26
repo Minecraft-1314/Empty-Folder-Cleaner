@@ -2,8 +2,8 @@
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
-    QDialog, QDialogButtonBox, QHBoxLayout, QLabel, QLineEdit,
-    QListWidget, QPushButton, QVBoxLayout
+    QDialog, QDialogButtonBox, QHBoxLayout, QLineEdit, QListWidget,
+    QPushButton, QVBoxLayout
 )
 
 from ..core.config import IGNORE_DIALOG_MIN_WIDTH
@@ -25,6 +25,7 @@ class IgnoreRulesDialog(QDialog):
         input_layout = QHBoxLayout()
         self.rule_input = QLineEdit()
         self.rule_input.setPlaceholderText(I18n.get_text("rule_placeholder", self.lang))
+        self.rule_input.returnPressed.connect(self.add_rule)
         add_btn = QPushButton(I18n.get_text("add_rule", self.lang))
         add_btn.clicked.connect(self.add_rule)
         input_layout.addWidget(self.rule_input, 1)
@@ -47,11 +48,14 @@ class IgnoreRulesDialog(QDialog):
         text = self.rule_input.text().strip()
         if text and not self.list_widget.findItems(text, Qt.MatchFlag.MatchExactly):
             self.list_widget.addItem(text)
-            self.rule_input.clear()
+        self.rule_input.clear()
 
     def remove_rule(self):
         for item in self.list_widget.selectedItems():
             self.list_widget.takeItem(self.list_widget.row(item))
 
     def get_patterns(self):
-        return [self.list_widget.item(i).text() for i in range(self.list_widget.count())]
+        return list(dict.fromkeys(
+            self.list_widget.item(i).text().strip()
+            for i in range(self.list_widget.count())
+        ))

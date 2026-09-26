@@ -14,11 +14,11 @@ A cross-platform desktop tool to find and clean up empty folders on your compute
 - **级联清理**：删除子目录后，新变空的父目录会自动继续清理<br>
   **Cascade Cleanup**: Parent folders that become empty after child deletion are automatically cleaned up
 
-- **安全删除**：支持永久删除或移动至回收站（需安装 `send2trash`），删除前二次确认  
-  **Safe Deletion**: Supports permanent deletion or moving to trash (requires `send2trash`), with a confirmation dialog before deletion
+- **安全删除**：支持永久删除或移动至回收站（需安装 `send2trash`），删除前二次确认；未安装 `send2trash` 时回收站选项会自动禁用并说明原因，避免误以为是可恢复删除  
+  **Safe Deletion**: Supports permanent deletion or moving to trash (requires `send2trash`), with a confirmation dialog before deletion; without `send2trash` the recycle-bin option is disabled and explains why, so a permanent delete is never mistaken for a recoverable one
 
-- **智能忽略**：自动记住删除失败（权限不足）的文件夹，下次扫描不再显示；支持通配符规则忽略特定文件夹  
-  **Smart Ignore**: Automatically remembers folders that failed to delete (e.g., permission denied) and hides them in future scans; supports wildcard ignore rules
+- **智能忽略**：自动记住删除失败（权限不足）的文件夹，下次扫描不再显示；支持通配符规则忽略特定文件夹，忽略规则会连同其子目录一起跳过  
+  **Smart Ignore**: Automatically remembers folders that failed to delete (e.g., permission denied) and hides them in future scans; wildcard ignore rules also skip the matching folder's entire subtree
 
 - **多语言支持**：内置中文和英文，可根据系统语言自动切换  
   **Multi‑language Support**: Built‑in Chinese and English, with automatic switching based on system language
@@ -55,7 +55,10 @@ A cross-platform desktop tool to find and clean up empty folders on your compute
    Click “Delete Selected”, confirm, and the folders will be deleted (or moved to trash); any folder that fails to delete will be automatically ignored in future scans
 
 6. 可通过“管理忽略规则”设置通配符规则（如 `*cache*`），匹配的文件夹将不在扫描结果中出现  
-   You can set wildcard ignore rules (e.g., `*cache*`) via “Manage Ignore Rules”; matched folders will be excluded from scans
+   You can set wildcard ignore rules (e.g., `*cache*`) via “Manage Ignore Rules”; matched folders and everything beneath them are excluded from scans
+
+7. 快捷键：`F5` 重新扫描，`Ctrl+A` 全选（在输入框内为全选文本），`Esc` 停止当前任务或清空输入框  
+   Shortcuts: `F5` rescan, `Ctrl+A` select all (selects text when a text field has focus), `Esc` stop the running task or clear the focused input
 
 ---
 

@@ -3,19 +3,22 @@
 import ctypes
 import os
 import sys
+from ctypes import wintypes
 
 from .config import DEFAULT_CLUSTER_SIZE
+
+SIZE_UNITS = ("B", "KB", "MB", "GB", "TB", "PB", "EB")
 
 
 def get_cluster_size(path):
     try:
         if sys.platform == "win32":
-            sectors_per_cluster = ctypes.c_ulonglong()
-            bytes_per_sector = ctypes.c_ulonglong()
-            free = ctypes.c_ulonglong()
-            total = ctypes.c_ulonglong()
+            sectors_per_cluster = wintypes.DWORD()
+            bytes_per_sector = wintypes.DWORD()
+            free = wintypes.DWORD()
+            total = wintypes.DWORD()
             abs_path = os.path.abspath(path)
-            drive = os.path.splitdrive(abs_path)[0] + "\\"
+            drive = _volume_root(abs_path)
             if ctypes.windll.kernel32.GetDiskFreeSpaceW(
                 ctypes.c_wchar_p(drive),
                 ctypes.pointer(sectors_per_cluster),
@@ -35,10 +38,18 @@ def get_cluster_size(path):
     return DEFAULT_CLUSTER_SIZE
 
 
+def _volume_root(abs_path):
+    """Build a root path acceptable to GetDiskFreeSpaceW, including UNC shares."""
+    drive = os.path.splitdrive(abs_path)[0]
+    if drive.startswith("\\\\"):
+        return drive + "\\"
+    return (drive or "C:") + "\\"
+
+
 def format_size(size):
-    units = (("B", 0), ("KB", 1), ("MB", 1), ("GB", 2))
     value = float(size)
-    for unit, digits in units:
-        if value < 1024 or unit == units[-1][0]:
+    for unit in SIZE_UNITS:
+        if abs(value) < 1024 or unit == SIZE_UNITS[-1]:
+            digits = 0 if unit == "B" else 1
             return f"{value:.{digits}f} {unit}"
         value /= 1024

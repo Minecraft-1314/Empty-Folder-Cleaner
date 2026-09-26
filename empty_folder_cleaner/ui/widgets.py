@@ -4,15 +4,16 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
     QAbstractItemView, QCheckBox, QComboBox, QFrame, QHBoxLayout,
-    QHeaderView, QLabel, QLineEdit, QPlainTextEdit, QProgressBar,
-    QPushButton, QSplitter, QTableView, QVBoxLayout, QWidget
+    QHeaderView, QLabel, QLineEdit, QProgressBar, QPushButton, QSplitter,
+    QTableView, QTextEdit, QVBoxLayout, QWidget
 )
 
 from ..core.config import (
-    FONT_FAMILY, LANG_COMBO_WIDTH, LOG_MAX_BLOCKS, TABLE_SELECT_WIDTH,
-    TABLE_STATUS_WIDTH, TABLE_TIME_WIDTH
+    FONT_FAMILY, LANG_COMBO_WIDTH, TABLE_SELECT_WIDTH, TABLE_STATUS_WIDTH,
+    TABLE_TIME_WIDTH
 )
 from ..core.i18n import I18n
+from ..core.scanner import is_trash_available
 from .table_model import FolderProxyModel, FolderTableModel
 
 
@@ -29,15 +30,13 @@ def build_header(window, content_layout):
 
     controls_layout = QHBoxLayout()
     theme_layout = QHBoxLayout()
-    theme_label = QLabel(I18n.get_text("theme", window.lang))
+    window.theme_label = QLabel(I18n.get_text("theme", window.lang))
     window.theme_combo = QComboBox()
-    window.theme_combo.addItem(I18n.get_text("system", window.lang), "system")
-    window.theme_combo.addItem(I18n.get_text("dark", window.lang), "dark")
-    window.theme_combo.addItem(I18n.get_text("light", window.lang), "light")
+    fill_theme_combo(window)
     idx = window.theme_combo.findData(window.theme_mode)
     window.theme_combo.setCurrentIndex(idx if idx >= 0 else 0)
     window.theme_combo.currentIndexChanged.connect(window.change_theme_mode)
-    theme_layout.addWidget(theme_label)
+    theme_layout.addWidget(window.theme_label)
     theme_layout.addWidget(window.theme_combo)
     controls_layout.addLayout(theme_layout)
 
@@ -50,7 +49,13 @@ def build_header(window, content_layout):
     controls_layout.addWidget(window.lang_combo)
 
     window.recycle_checkbox = QCheckBox(I18n.get_text("use_recycle", window.lang))
-    window.recycle_checkbox.setChecked(window.use_trash)
+    trash_available = is_trash_available()
+    if not trash_available:
+        window.use_trash = False
+    window.recycle_checkbox.setChecked(window.use_trash and trash_available)
+    window.recycle_checkbox.setEnabled(trash_available)
+    if not trash_available:
+        window.recycle_checkbox.setToolTip(I18n.get_text("trash_unavailable", window.lang))
     window.recycle_checkbox.stateChanged.connect(
         lambda state: setattr(window, "use_trash", state == Qt.CheckState.Checked.value)
     )
@@ -58,6 +63,19 @@ def build_header(window, content_layout):
 
     header_layout.addLayout(controls_layout)
     content_layout.addLayout(header_layout)
+
+
+def fill_theme_combo(window):
+    """Repopulate the theme selector in the active language without firing signals."""
+    combo = window.theme_combo
+    current = combo.currentData()
+    combo.blockSignals(True)
+    combo.clear()
+    for key in ("system", "dark", "light"):
+        combo.addItem(I18n.get_text(key, window.lang), key)
+    index = combo.findData(current)
+    combo.setCurrentIndex(index if index >= 0 else 0)
+    combo.blockSignals(False)
 
 
 def build_directory_bar(window, content_layout):
@@ -128,10 +146,11 @@ def build_result_area(window, content_layout):
     log_container.setFrameShape(QFrame.Shape.StyledPanel)
     log_layout = QVBoxLayout(log_container)
     log_layout.setContentsMargins(0, 0, 0, 0)
-    window.log_text = QPlainTextEdit()
+    window.log_text = QTextEdit()
     window.log_text.setReadOnly(True)
-    window.log_text.setMaximumBlockCount(LOG_MAX_BLOCKS)
     window.log_text.setFrameShape(QFrame.Shape.NoFrame)
+    window.log_text.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+    window.log_text.setUndoRedoEnabled(False)
     log_layout.addWidget(window.log_text)
 
     window.splitter.addWidget(table_container)
@@ -153,6 +172,8 @@ def build_progress_area(window, content_layout):
     window.overall_text = QLabel("0 / 0")
     overall_row.addWidget(window.overall_text)
     progress_layout.addLayout(overall_row)
+    window.selection_label = QLabel()
+    progress_layout.addWidget(window.selection_label)
     window.space_label = QLabel()
     progress_layout.addWidget(window.space_label)
     content_layout.addLayout(progress_layout)

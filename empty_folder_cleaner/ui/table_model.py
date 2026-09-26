@@ -59,7 +59,7 @@ class FolderTableModel(QAbstractTableModel):
         if not index.isValid():
             return Qt.ItemFlag.NoItemFlags
         flags = Qt.ItemFlag.ItemIsEnabled
-        if index.column() == 3:
+        if index.column() == 3 and self._selectable:
             flags |= Qt.ItemFlag.ItemIsUserCheckable
         return flags
 
@@ -76,10 +76,13 @@ class FolderTableModel(QAbstractTableModel):
         else:
             state = value
         path = self._rows[index.row()][0]
+        was_selected = path in self._selected_paths
         if state == Qt.CheckState.Checked:
             self._selected_paths.add(path)
         else:
             self._selected_paths.discard(path)
+        if was_selected == (path in self._selected_paths):
+            return True
         self.dataChanged.emit(index, index, [Qt.ItemDataRole.CheckStateRole])
         return True
 
@@ -93,24 +96,37 @@ class FolderTableModel(QAbstractTableModel):
         self.endInsertRows()
         return True
 
+    def add_folders(self, paths):
+        """Insert many rows under a single reset, avoiding per-row view churn."""
+        fresh = []
+        seen = set()
+        for path, mtime_text in paths:
+            if path in self._path_rows or path in seen:
+                continue
+            seen.add(path)
+            fresh.append((path, mtime_text))
+        if not fresh:
+            return 0
+        self.beginResetModel()
+        for path, mtime_text in fresh:
+            self._path_rows[path] = len(self._rows)
+            self._rows.append((path, mtime_text))
+        self.endResetModel()
+        return len(fresh)
+
     def remove_paths(self, paths):
         paths = set(paths)
         if not paths:
             return False
-        rows = sorted(
-            (row for row, (path, _) in enumerate(self._rows) if path in paths),
-            reverse=True,
-        )
-        if not rows:
+        if not any(path in paths for path, _ in self._rows):
             return False
-        self.layoutAboutToBeChanged.emit()
-        for row in rows:
-            self._rows.pop(row)
+        self.beginResetModel()
+        self._rows = [(path, mtime) for path, mtime in self._rows if path not in paths]
         self._path_rows = {
             path: row for row, (path, _) in enumerate(self._rows)
         }
         self._selected_paths.difference_update(paths)
-        self.layoutChanged.emit()
+        self.endResetModel()
         return True
 
     def clear(self):
@@ -212,8 +228,10 @@ class FolderProxyModel(QSortFilterProxyModel):
         return self._path_filter in path.lower()
 
     def lessThan(self, left, right):
+        left_value = left.data() or ""
+        right_value = right.data() or ""
         if left.column() == 0:
-            return left.data().lower() < right.data().lower()
+            return left_value.lower() < right_value.lower()
         if left.column() == 1:
-            return left.data() < right.data()
+            return left_value < right_value
         return super().lessThan(left, right)
