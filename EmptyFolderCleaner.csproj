@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>EmptyFolderCleaner</RootNamespace>
+    <AssemblyName>EmptyFolderCleaner</AssemblyName>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <SatelliteResourceLanguages>en;zh-Hans</SatelliteResourceLanguages>
+    <PublishSingleFile Condition="'$(EmptyFolderCleanerSingleFile)' == 'true'">true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract Condition="'$(EmptyFolderCleanerSingleFile)' == 'true'">true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile Condition="'$(EmptyFolderCleanerSingleFile)' == 'true'">true</EnableCompressionInSingleFile>
+    <DebugType>embedded</DebugType>
+    <PublishReadyToRun>false</PublishReadyToRun>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="src\**;Tests\**;tools\ui-audit\**;Uninstaller\**;reference\**;work\**;obj\**;bin\**" />
+    <None Remove="src\**;Tests\**;tools\ui-audit\**;Uninstaller\**;reference\**;work\**;obj\**;bin\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3351.48" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="EmptyFolderCleaner.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="src\EmptyFolderCleaner.Core\EmptyFolderCleaner.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="app.ico" Link="app.ico" />
+    <Content Include="Ui\Web\**\*" Exclude="Ui\Web\app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

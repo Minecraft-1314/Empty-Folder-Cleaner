@@ -1,0 +1,9 @@
+<WixLocalization xmlns="http://wixtoolset.org/schemas/v4/wxl" Culture="en-US" Codepage="936">
+  <String Id="ProductLanguage" Value="1033" />
+  <String Id="PackageCodepage" Value="936" />
+  <String Id="ProductName" Value="空文件夹清理器 / Empty Folder Cleaner" />
+  <String Id="Manufacturer" Value="Empty Folder Cleaner Contributors" />
+  <String Id="ProductDescription" Value="查找并删除电脑中的空文件夹 / Find and delete empty folders on your computer" />
+  <String Id="ShortcutName" Value="Empty Folder Cleaner" />
+  <String Id="DowngradeError" Value="A newer version of Empty Folder Cleaner is already installed. / 已安装更新版本。" />
+</WixLocalization>

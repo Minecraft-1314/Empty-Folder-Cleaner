@@ -1,0 +1,71 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package Name="!(loc.ProductName)"
+           Language="!(loc.ProductLanguage)"
+           Version="$(var.Version)"
+           Manufacturer="!(loc.Manufacturer)"
+           UpgradeCode="{7B1D4C62-90E4-4A98-BB53-2B9D40B66A11}"
+           Scope="perMachine"
+           Codepage="!(loc.PackageCodepage)"
+           InstallerVersion="500">
+    <MajorUpgrade DowngradeErrorMessage="!(loc.DowngradeError)" />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+    <Icon Id="ApplicationIcon" SourceFile="$(var.IconPath)" />
+    <Property Id="ARPPRODUCTICON" Value="ApplicationIcon" />
+    <Property Id="ARPCOMMENTS" Value="!(loc.ProductDescription)" />
+    <Feature Id="MainFeature" Title="!(loc.ProductName)" Level="1">
+      <ComponentGroupRef Id="ApplicationFiles" />
+      <ComponentRef Id="StartMenuShortcut" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+    <ui:WixUI Id="WixUI_Minimal" />
+  </Package>
+
+  <Fragment>
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="EmptyFolderCleaner" />
+    </StandardDirectory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ApplicationFiles" Directory="INSTALLFOLDER">
+      <Files Include="$(var.PublishDir)\**" />
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Component Id="StartMenuShortcut" Guid="{A3B6C3D8-7F42-4C6A-9E17-42B16D6F8A21}">
+        <Shortcut Id="StartMenuShortcut"
+                  Name="!(loc.ShortcutName)"
+                  Target="[INSTALLFOLDER]EmptyFolderCleaner.exe"
+                  Icon="ApplicationIcon"
+                  IconIndex="0" />
+        <RemoveFolder Id="RemoveStartMenuFolder" On="uninstall" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\EmptyFolderCleaner\Shortcuts"
+                       Name="StartMenu"
+                       Type="string"
+                       Value="[INSTALLFOLDER]"
+                       KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+  </Fragment>
+
+  <Fragment>
+    <StandardDirectory Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="{D1E27A5B-38C4-4E70-A621-59D90C3F4E82}">
+        <Shortcut Id="DesktopShortcut"
+                  Name="!(loc.ShortcutName)"
+                  Target="[INSTALLFOLDER]EmptyFolderCleaner.exe"
+                  Icon="ApplicationIcon"
+                  IconIndex="0" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\EmptyFolderCleaner\Shortcuts"
+                       Name="Desktop"
+                       Type="string"
+                       Value="[INSTALLFOLDER]"
+                       KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+  </Fragment>
+</Wix>

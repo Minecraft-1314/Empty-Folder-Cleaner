@@ -1,0 +1,69 @@
+<Window x:Class="EmptyFolderCleaner.Ui.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.WPF"
+        Title="Empty Folder Cleaner"
+        Width="1280"
+        Height="820"
+        MinWidth="360"
+        MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        Background="#EEF2F6"
+        Icon="../app.ico">
+  <Window.Resources>
+    <SolidColorBrush x:Key="FallbackBackgroundBrush" Color="#EEF2F6" />
+    <SolidColorBrush x:Key="FallbackTitleBrush" Color="#0F172A" />
+    <SolidColorBrush x:Key="FallbackBodyBrush" Color="#334155" />
+    <SolidColorBrush x:Key="FallbackAccentBrush" Color="#0F766E" />
+  </Window.Resources>
+  <Grid>
+    <wv2:WebView2 x:Name="Browser" Visibility="Collapsed" />
+    <Border x:Name="FallbackPanel"
+            Background="{StaticResource FallbackBackgroundBrush}"
+            Padding="32">
+      <Grid MaxWidth="520" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <StackPanel>
+          <Image x:Name="FallbackLogo"
+                 Width="72"
+                 Height="72"
+                 HorizontalAlignment="Center"
+                 RenderOptions.BitmapScalingMode="HighQuality" />
+          <TextBlock x:Name="FallbackTitle"
+                     Margin="0,20,0,0"
+                     FontFamily="Segoe UI"
+                     FontSize="26"
+                     FontWeight="SemiBold"
+                     Foreground="{StaticResource FallbackTitleBrush}"
+                     TextAlignment="Center"
+                     TextWrapping="Wrap"
+                     Text="Empty Folder Cleaner" />
+          <TextBlock x:Name="FallbackMessage"
+                     Margin="0,12,0,0"
+                  FontFamily="Segoe UI"
+                  FontSize="14"
+                     LineHeight="22"
+                     Foreground="{StaticResource FallbackBodyBrush}"
+                     TextAlignment="Center"
+                     TextWrapping="Wrap"
+                     Text="Starting the local interface..." />
+          <Button x:Name="RetryButton"
+                  Margin="0,24,0,0"
+                  MinWidth="132"
+                  MinHeight="44"
+                  Padding="20,0"
+                  HorizontalAlignment="Center"
+                  Background="{StaticResource FallbackAccentBrush}"
+                  BorderThickness="0"
+                  Foreground="White"
+                  FontFamily="Segoe UI"
+                     FontSize="14"
+                  Cursor="Hand"
+                  Content="Retry"
+                  Click="OnRetryClick" />
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>
