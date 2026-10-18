@@ -1,0 +1,51 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package Name="Empty Folder Cleaner"
+           Manufacturer="Empty Folder Cleaner Contributors"
+           Version="$(var.ProductVersion)"
+           UpgradeCode="{7B1D4C62-90E4-4A98-BB53-2B9D40B66A11}"
+           Scope="perMachine">
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Empty Folder Cleaner is already installed." />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+    <Icon Id="AppIcon" SourceFile="$(var.AppSource)\app.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <Property Id="ARPDESCRIPTION" Value="Empty Folder Cleaner" />
+    <Feature Id="MainFeature" Title="Empty Folder Cleaner" Level="1">
+      <ComponentGroupRef Id="ApplicationFiles" />
+      <ComponentRef Id="StartMenuShortcut" />
+    </Feature>
+    <ui:WixUI Id="WixUI_Minimal" />
+  </Package>
+
+  <Fragment>
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="EmptyFolderCleaner" />
+    </StandardDirectory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ApplicationFiles" Directory="INSTALLFOLDER">
+      <Files Include="$(var.AppSource)\**" />
+    </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Component Id="StartMenuShortcut" Guid="{A3B6C3D8-7F42-4C6A-9E17-42B16D6F8A21}">
+        <Shortcut Id="StartMenuShortcutLink"
+                  Name="Empty Folder Cleaner"
+                  Target="[INSTALLFOLDER]EmptyFolderCleaner.exe"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon"
+                  IconIndex="0" />
+        <RemoveFolder Id="RemoveStartMenuFolder" On="uninstall" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\EmptyFolderCleaner\Shortcuts"
+                       Name="StartMenu"
+                       Type="string"
+                       Value="[INSTALLFOLDER]"
+                       KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+  </Fragment>
+</Wix>
