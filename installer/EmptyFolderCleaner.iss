@@ -39,9 +39,9 @@ Source: "..\target\release\uninstall.exe"; DestDir: "{app}"; Flags: ignoreversio
 Source: "..\app.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\Empty Folder Cleaner"; Filename: "{app}\EmptyFolderCleaner.exe"
-Name: "{group}\Uninstall Empty Folder Cleaner"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\Empty Folder Cleaner"; Filename: "{app}\EmptyFolderCleaner.exe"; Tasks: desktopicon
+Name: "{group}\Empty Folder Cleaner"; Filename: "{app}\EmptyFolderCleaner.exe"; IconFilename: "{app}\app.ico"
+Name: "{group}\Uninstall Empty Folder Cleaner"; Filename: "{uninstallexe}"; IconFilename: "{app}\app.ico"
+Name: "{autodesktop}\Empty Folder Cleaner"; Filename: "{app}\EmptyFolderCleaner.exe"; IconFilename: "{app}\app.ico"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\EmptyFolderCleaner.exe"; Description: "{cm:LaunchProgram,Empty Folder Cleaner}"; Flags: nowait postinstall skipifsilent
