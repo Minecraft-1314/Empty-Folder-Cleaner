@@ -3,7 +3,7 @@
 ## 重要公告（必读）
 
 - 安装程序尚未使用代码签名证书，Windows SmartScreen 可能显示安全提示。
-- 本项目面向 Windows 10/11 x64，使用 Rust 重写，不再需要 .NET 运行时。
+- 本项目面向 Windows 10/11 x64。
 - 所有版本均需要 Microsoft Edge WebView2 Runtime。
 - 请先核对扫描结果，再执行删除操作。
 
